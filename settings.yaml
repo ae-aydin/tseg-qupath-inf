@@ -1,0 +1,7 @@
+model_name: "model.pt"
+roi_name: "roi.png"
+output_name: "roi.geojson"
+
+models_path: "models"
+rois_path: "rois"
+preds_path: "preds"
