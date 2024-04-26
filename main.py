@@ -29,9 +29,11 @@ PROPERTIES = {
     "classification": {"name": "Tumor", "color": [0, 0, 200]},
 }
 
+
 def check_version(major: int = 3, minor: int = 6):
     python_version = sys.version_info
-    return (int(python_version.major) == major and int(python_version.minor) >= minor)
+    return int(python_version.major) == major and int(python_version.minor) >= minor
+
 
 def format_shapes(shape: tuple, ds: float = 1.0):
     """Format tuples for logging
@@ -121,7 +123,10 @@ def predict(paths: dict, args: argparse.Namespace, imgsz: int = 640):
     preds = model.predict(
         paths["roi_path"], conf=args.conf, iou=args.iou, imgsz=imgsz, verbose=False
     )
-    stacked_preds = torch.stack([mask.data for p in preds for mask in p.masks])
+    try:
+        stacked_preds = torch.stack([mask.data for p in preds for mask in p.masks])
+    except Exception as e:
+        return None
     mask_size = stacked_preds.shape[2:]
     mask = (
         torch.any(stacked_preds, dim=0).numpy().reshape(*mask_size, 1).astype(np.uint8)
@@ -182,7 +187,10 @@ def main():
     args = load_arguments()
     paths = load_paths(args)
     mask = predict(paths, args)
-    mask_to_geojson(mask, paths["output_path"], args)
+    if mask is not None:
+        mask_to_geojson(mask, paths["output_path"], args)
+    else:
+        logger.warning("NO OBJECTS FOUND.")
     elapsed_time_ms = (time.time() - start_time) * 1000
     logger.info(f"Process finished in {round(elapsed_time_ms, 2)} ms.")
 
