@@ -15,7 +15,7 @@ python3 -m venv .venv
 echo "Virtual environment successfully created."
 source .venv/bin/activate
 echo "Installing requirements..."
-pip install --no-deps -r requirements.txt
+pip install -r requirements.txt
 echo "Requirements successfully installed."
 deactivate
 echo "Creating folders..."
