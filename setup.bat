@@ -23,7 +23,7 @@ pip install -r requirements.txt
 echo Requirements successfully installed.
 call deactivate
 echo Creating folders...
-mkdir models rois preds
+mkdir models .roi_tiles .preds
 echo Folders successfully created.
 echo 
 echo Setup completed successfully. Closing window in 5 seconds...

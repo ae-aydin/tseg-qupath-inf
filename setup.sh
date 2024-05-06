@@ -19,7 +19,7 @@ pip install -r requirements.txt
 echo "Requirements successfully installed."
 deactivate
 echo "Creating folders..."
-mkdir models rois preds
+mkdir models .roi_tiles .preds
 echo "Folders successfully created."
 
 echo 
