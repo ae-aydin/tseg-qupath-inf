@@ -71,6 +71,7 @@ def mask_to_geojson(
                     hole = contours[child_idx].squeeze().tolist()
                     if hole[0] != hole[-1]:
                         hole.append(hole[0])
+                        hole = add_offsets(hole, args.roi_x, args.roi_y)
                     holes.append(hole)
                     child_idx = hierarchy[0][child_idx][0]
             geometry = geojson.Polygon([external] + holes)
