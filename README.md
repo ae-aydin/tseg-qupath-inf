@@ -6,15 +6,16 @@ This script is required for the [*qupath-extension-tseg*](https://github.com/ae-
 
 This project uses `uv` for package management.
 
-1.  **Install `uv`**
-
+1. **Install `uv`**
     Follow the official installation instructions for your OS:
+
     ```bash
     # macOS / Linux
     curl -LsSf https://astral.sh/uv/install.sh | sh
     ```
 
-2.  **Create a virtual environment and install dependencies**
+2. **Create a virtual environment and install dependencies**
+
     ```bash
     uv venv
     uv pip sync requirements.txt
@@ -40,11 +41,18 @@ python infer.py \
 
 ### Arguments
 
--   `--model-path`: Path to the ONNX segmentation model.
--   `--tile-dir`: Directory containing the image tiles for the ROI.
--   `--output-dir`: Directory where the output GeoJSON file will be saved.
--   `--roi-x`, `--roi-y`: The top-left (x, y) coordinates of the ROI.
--   `--roi-width`, `--roi-height`: The dimensions of the ROI.
--   `--downsample-rate`: The downsample rate of the slide at which tiles were generated.
--   `--tile-size`: The pixel dimensions of each tile.
--   `--confidence`: The confidence threshold for the prediction (0.0 to 1.0).
+- `--model-path`: Path to the ONNX segmentation model.
+
+- `--tile-dir`: Directory containing the image tiles for the ROI.
+
+- `--output-dir`: Directory where the output GeoJSON file will be saved.
+
+- `--roi-x`, `--roi-y`: The top-left (x, y) coordinates of the ROI.
+
+- `--roi-width`, `--roi-height`: The dimensions of the ROI.
+
+- `--downsample-rate`: The downsample rate of the slide at which tiles were generated.
+
+- `--tile-size`: The pixel dimensions of each tile.
+
+- `--confidence`: The confidence threshold for the prediction (0.0 to 1.0).
