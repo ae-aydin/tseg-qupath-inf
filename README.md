@@ -1,7 +1,50 @@
-# Inference for *qupath-extension-tseg*
+# Inference for qupath-extension-tseg
 
-This script is required for [*qupath-extension-tseg*](https://github.com/ae-aydin/qupath-extension-tseg) extension.
+This script is required for the [*qupath-extension-tseg*](https://github.com/ae-aydin/qupath-extension-tseg) extension. It gets predictions on a given ROI as a set of tiles, stitches them together, and saves the resulting polygons in GeoJSON format.
 
-Gets predictions on given ROI as tiles, converts and saves predictions as GeoJSON format.
+## Setup
 
-For usage check [*qupath-extension-tseg*](https://github.com/ae-aydin/qupath-extension-tseg).
+This project uses `uv` for package management.
+
+1.  **Install `uv`**
+
+    Follow the official installation instructions for your OS:
+    ```bash
+    # macOS / Linux
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    ```
+
+2.  **Create a virtual environment and install dependencies**
+    ```bash
+    uv venv
+    uv pip sync requirements.txt
+    ```
+
+## How to Run
+
+Execute the `infer.py` script with the required arguments. The script processes a tiled region of interest (ROI) and outputs a GeoJSON file containing the detected polygons.
+
+```bash
+python infer.py \
+    --model-path /path/to/your/model.onnx \
+    --tile-dir /path/to/the/tiles/ \
+    --output-dir /path/to/output/ \
+    --roi-x 1000 \
+    --roi-y 1500 \
+    --roi-width 5000 \
+    --roi-height 5000 \
+    --downsample-rate 1.0 \
+    --tile-size 512 \
+    --confidence 0.5
+```
+
+### Arguments
+
+-   `--model-path`: Path to the ONNX segmentation model.
+-   `--tile-dir`: Directory containing the image tiles for the ROI.
+-   `--output-dir`: Directory where the output GeoJSON file will be saved.
+-   `--roi-x`, `--roi-y`: The top-left (x, y) coordinates of the ROI.
+-   `--roi-width`, `--roi-height`: The dimensions of the ROI.
+-   `--downsample-rate`: The downsample rate of the slide at which tiles were generated.
+-   `--tile-size`: The pixel dimensions of each tile.
+-   `--confidence`: The confidence threshold for the prediction (0.0 to 1.0).
