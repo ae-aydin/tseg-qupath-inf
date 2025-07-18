@@ -1,0 +1,13 @@
+[project]
+name = "tseg-qupath-inf"
+version = "0.1.0"
+description = "Inference script for tseg"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "geojson>=3.2.0",
+    "numpy>=2.3.0",
+    "onnxruntime>=1.22.1",
+    "opencv-contrib-python>=4.11.0.86",
+    "tqdm>=4.67.1",
+]

@@ -1,4 +1,4 @@
-# YOLO Inference for *qupath-extension-tseg*
+# Inference for *qupath-extension-tseg*
 
 This script is required for [*qupath-extension-tseg*](https://github.com/ae-aydin/qupath-extension-tseg) extension.
 

@@ -1,0 +1,12 @@
+{
+  "model": {
+    "infer_size": 256
+  },
+  "geojson_properties": {
+    "objectType": "annotation",
+    "classification": {
+      "name": "Tumor",
+      "color": [0, 0, 200]
+    }
+  }
+}
