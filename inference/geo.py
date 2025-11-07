@@ -5,7 +5,6 @@ import cv2
 import geojson
 import numpy as np
 from numpy.typing import NDArray
-from tqdm import tqdm
 
 from .image import gaussian_weight_map, post_process, sigmoid
 from .model import infer, load
@@ -26,7 +25,8 @@ def stitch_tiles(
 ) -> NDArray[np.uint8]:
     model = load(model_path)
     gaussian_weight = gaussian_weight_map(infer_size)
-    for tile_path in tqdm(list(tile_dir.iterdir()), ncols=64, desc="Stitching tiles"):
+    logger.info("Stitching tiles")
+    for tile_path in list(tile_dir.iterdir()):
         tile_properties = parse_properties(tile_path.stem)
         pred = infer(tile_path, model, infer_size)
         y = int(tile_properties["y"] / total_scale)
@@ -81,7 +81,8 @@ def extract_and_save_polygons(
         return
 
     hierarchy = hierarchy[0]
-    for i, contour in enumerate(tqdm(contours, desc="Processing contours", ncols=64)):
+    logger.info("Processing contours")
+    for i, contour in enumerate(contours):
         if cv2.contourArea(contour) < min_area:
             continue
 
