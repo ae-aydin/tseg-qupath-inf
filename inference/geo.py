@@ -19,6 +19,8 @@ def stitch_tiles(
     infer_size: int,
     tile_dir: Path,
     canvas: np.ndarray,
+    canvas_offset_x: int,
+    canvas_offset_y: int,
     canvas_weight: np.ndarray,
     total_scale: float,
     confidence: float,
@@ -29,8 +31,8 @@ def stitch_tiles(
     for tile_path in list(tile_dir.iterdir()):
         tile_properties = parse_properties(tile_path.stem)
         pred = infer(tile_path, model, infer_size)
-        y = int(tile_properties["y"] / total_scale)
-        x = int(tile_properties["x"] / total_scale)
+        x = int((tile_properties["x"] - canvas_offset_x) / total_scale)
+        y = int((tile_properties["y"] - canvas_offset_y) / total_scale)
         canvas[y : y + infer_size, x : x + infer_size] += pred * gaussian_weight
         canvas_weight[y : y + infer_size, x : x + infer_size] += gaussian_weight
 

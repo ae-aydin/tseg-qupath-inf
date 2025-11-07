@@ -36,6 +36,8 @@ def run_inference(args: argparse.Namespace, infer_size: int) -> NDArray[np.uint8
         infer_size,
         args.tile_dir,
         canvas,
+        args.roi_x,
+        args.roi_y,
         canvas_weight,
         total_scale,
         args.confidence,
