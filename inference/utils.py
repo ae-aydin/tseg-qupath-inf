@@ -48,6 +48,9 @@ def parse_properties(filename: str) -> dict:
     for item in properties_str.split(","):
         if "=" in item:
             k, v = item.split("=", 1)
-            v = int(v)
+            if k == 'd':
+                v = int(v)
+            else:
+                v = float(v)
             properties[k] = v
     return properties
