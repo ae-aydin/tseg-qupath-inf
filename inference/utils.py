@@ -9,8 +9,9 @@ from pathlib import Path
 logger = logging.getLogger("inference")
 
 
-def setup_logger(name: str = "inference", level: int = logging.INFO) -> logging.Logger:
+def setup_logger(name: str = "inference", debug: bool = False) -> logging.Logger:
     logger = logging.getLogger(name)
+    level = logging.DEBUG if debug else logging.INFO
     logger.setLevel(level)
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
@@ -37,9 +38,10 @@ def timer(func):
         finally:
             end_time = time.perf_counter()
             run_time = end_time - start_time
-            logger.info(f"Finished '{func.__name__}' in {run_time:.4f} secs")
+            logger.debug(f"Finished '{func.__name__}' in {run_time:.4f} secs")
             for handler in logger.handlers:
                 handler.flush()
+
     return wrapper
 
 
@@ -52,7 +54,7 @@ def parse_properties(filename: str) -> dict:
     for item in properties_str.split(","):
         if "=" in item:
             k, v = item.split("=", 1)
-            if k == 'd':
+            if k == "d":
                 v = float(v)
             else:
                 v = int(v)

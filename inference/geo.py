@@ -26,30 +26,31 @@ def stitch_tiles(
     confidence: float,
 ) -> NDArray[np.uint8]:
     model = load(model_path)
-    gaussian_weight = gaussian_weight_map(infer_size)
+    gaussian_weights = gaussian_weight_map(infer_size)
+
     logger.info("Stitching tiles")
     for tile_path in list(tile_dir.iterdir()):
         tile_properties = parse_properties(tile_path.stem)
         pred = infer(tile_path, model, infer_size)
         x = int((tile_properties["x"] - canvas_offset_x) / total_scale)
         y = int((tile_properties["y"] - canvas_offset_y) / total_scale)
-        canvas[y : y + infer_size, x : x + infer_size] += pred * gaussian_weight
-        canvas_weight[y : y + infer_size, x : x + infer_size] += gaussian_weight
+        canvas[y : y + infer_size, x : x + infer_size] += pred * gaussian_weights
+        canvas_weight[y : y + infer_size, x : x + infer_size] += gaussian_weights
 
-    logger.info("Averaging the stitched logits")
+    logger.debug("Averaging the stitched logits")
     min_logit = np.min(canvas[canvas_weight > 0]) if np.any(canvas_weight > 0) else 0
     out_canvas = np.full_like(canvas, fill_value=min_logit, dtype=np.float32)
     r_canvas = np.divide(canvas, canvas_weight, out=out_canvas, where=canvas_weight > 0)
     r_canvas = sigmoid(r_canvas)
 
-    logger.info("Post processing the ROI")
+    logger.debug("Post processing the ROI")
     r_canvas = post_process(r_canvas, confidence)
 
     canvas_full_size = (
         int(r_canvas.shape[1] * total_scale),
         int(r_canvas.shape[0] * total_scale),
     )
-    logger.info(f"Resizing the ROI to full size -> {canvas_full_size}")
+    logger.debug(f"Resizing the ROI to full size -> {canvas_full_size}")
     r_canvas = cv2.resize(r_canvas, canvas_full_size, interpolation=cv2.INTER_NEAREST)
 
     return r_canvas.astype(np.uint8)
@@ -83,7 +84,7 @@ def extract_and_save_polygons(
         return
 
     hierarchy = hierarchy[0]
-    logger.info("Processing contours")
+    logger.info("Processing polygons")
     for i, contour in enumerate(contours):
         if cv2.contourArea(contour) < min_area:
             continue
