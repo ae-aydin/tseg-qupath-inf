@@ -53,7 +53,7 @@ if [ -f "pyproject.toml" ]; then
   log_success "Dependencies installed via pyproject."
 elif [ -f "requirements.txt" ]; then
   log_info "Found requirements.txt. Installing into venv..."
-  uv pip install -r requirements.txt -q
+  uv add -r requirements.txt -q
   log_success "Dependencies from requirements.txt installed."
 else
   log_error "No pyproject.toml or requirements.txt found."
