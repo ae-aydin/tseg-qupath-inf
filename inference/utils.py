@@ -31,11 +31,15 @@ def timer(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.perf_counter()
-        result = func(*args, **kwargs)
-        end_time = time.perf_counter()
-        run_time = end_time - start_time
-        logger.info(f"Finished '{func.__name__}' in {run_time:.4f} secs")
-        return result
+        try:
+            result = func(*args, **kwargs)
+            return result
+        finally:
+            end_time = time.perf_counter()
+            run_time = end_time - start_time
+            logger.info(f"Finished '{func.__name__}' in {run_time:.4f} secs")
+            for handler in logger.handlers:
+                handler.flush()
     return wrapper
 
 
@@ -49,8 +53,8 @@ def parse_properties(filename: str) -> dict:
         if "=" in item:
             k, v = item.split("=", 1)
             if k == 'd':
-                v = int(v)
-            else:
                 v = float(v)
+            else:
+                v = int(v)
             properties[k] = v
     return properties
