@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-exec >&2
 
 log_info()    { echo "[INFO] $1"; }
 log_success() { echo "[SUCCESS] $1"; }
