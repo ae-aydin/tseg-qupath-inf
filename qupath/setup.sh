@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+exec >&2
 
-# logging
-log_info()    { echo "[INFO] $1" >&2; }
-log_success() { echo "[SUCCESS] $1" >&2; }
-log_warn()    { echo "[WARN] $1" >&2; }
-log_error()   { echo "[ERROR] $1" >&2; exit 1; }
+log_info()    { echo "[INFO] $1"; }
+log_success() { echo "[SUCCESS] $1"; }
+log_warn()    { echo "[WARN] $1"; }
+log_error()   { echo "[ERROR] $1"; exit 1; }
 
 trap 'log_error "Failed at line $LINENO: ${BASH_COMMAND:-unknown}"' ERR
 
