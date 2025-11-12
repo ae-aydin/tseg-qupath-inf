@@ -36,7 +36,7 @@ def stitch_tiles(
         if (h, w) == (infer_size, infer_size):
             weights = default_gaussian_weights
         else:
-            pred = pred[:h, :w, :]
+            pred = pred[:h, :w]
             weights = gaussian_weight_map(h, w)
         x = int((tile_properties["x"] - canvas_offset_x) / total_scale)
         y = int((tile_properties["y"] - canvas_offset_y) / total_scale)
