@@ -58,7 +58,7 @@ def main():
     logger = None
 
     try:
-        logger = setup_logger(args.log, debug=True)
+        logger = setup_logger(args.log_file, debug=True)
         logger.info(f"Arguments: {vars(args)}")
 
         start_time = time.perf_counter()
