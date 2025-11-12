@@ -32,6 +32,18 @@ def gaussian_weight_map(size: int, sigma_ratio: float = 0.25) -> NDArray[np.floa
     return g_map.astype(np.float32)
 
 
+def gaussian_weight_map(
+    h: int, w: int, sigma_ratio: float = 0.25
+) -> NDArray[np.float32]:
+    tmp_x = np.linspace(-1, 1, w)
+    tmp_y = np.linspace(-1, 1, h)
+    x, y = np.meshgrid(tmp_x, tmp_y)
+    d = np.sqrt(x * x + y * y)
+    sigma = 2 * sigma_ratio**2
+    g_map = np.exp(-((d**2) / sigma))
+    return g_map.astype(np.float32)
+
+
 def sigmoid(image: NDArray[np.float32]) -> NDArray[np.float32]:
     return 1.0 / (1.0 + np.exp(-image))
 

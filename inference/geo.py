@@ -22,20 +22,26 @@ def stitch_tiles(
     canvas_offset_x: int,
     canvas_offset_y: int,
     canvas_weight: np.ndarray,
+    infer_scale: int,
     total_scale: float,
     confidence: float,
 ) -> NDArray[np.uint8]:
     model = load(model_path)
-    gaussian_weights = gaussian_weight_map(infer_size)
+    default_gaussian_weights = gaussian_weight_map(infer_size, infer_size)
 
     logger.info("Stitching tiles")
     for tile_path in list(tile_dir.iterdir()):
         tile_properties = parse_properties(tile_path.stem)
-        pred = infer(tile_path, model, infer_size)
+        pred, h, w = infer(tile_path, model, infer_size, infer_scale)
+        if (h, w) == (infer_size, infer_size):
+            weights = default_gaussian_weights
+        else:
+            pred = pred[:h, :w, :]
+            weights = gaussian_weight_map(h, w)
         x = int((tile_properties["x"] - canvas_offset_x) / total_scale)
         y = int((tile_properties["y"] - canvas_offset_y) / total_scale)
-        canvas[y : y + infer_size, x : x + infer_size] += pred * gaussian_weights
-        canvas_weight[y : y + infer_size, x : x + infer_size] += gaussian_weights
+        canvas[y : y + infer_size, x : x + infer_size] += pred * weights
+        canvas_weight[y : y + infer_size, x : x + infer_size] += weights
 
     logger.debug("Averaging the stitched logits")
     min_logit = np.min(canvas[canvas_weight > 0]) if np.any(canvas_weight > 0) else 0

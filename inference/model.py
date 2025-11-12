@@ -51,14 +51,22 @@ def load(model_path: Path) -> ort.InferenceSession:
 
 
 def infer(
-    image_path: Path,
-    model: ort.InferenceSession,
-    infer_size: int,
+    image_path: Path, model: ort.InferenceSession, infer_size: int, infer_scale: int
 ) -> NDArray[np.float32]:
     image = read_image(image_path)
-    image = cv2.resize(image, (infer_size, infer_size))
+
+    scale_factor = 1 / infer_scale
+    image = cv2.resize(
+        image, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_AREA
+    )
+
+    h, w, d = image.shape[:2]
+    if (h, w) != (infer_size, infer_size):
+        canvas = np.zeros(shape=(infer_size, infer_size, d), dtype=np.uint8)
+        canvas[:h, :w, :] = image
+        image = canvas
 
     if isinstance(model, ort.InferenceSession):
-        return infer_onnx(image, model)
+        return infer_onnx(image, model), (h, w)
     else:
         raise TypeError("Unsupported model type")
