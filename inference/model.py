@@ -64,7 +64,7 @@ def infer(
         interpolation=cv2.INTER_AREA,
     )
 
-    h, w, d = image.shape[:2]
+    h, w, d = image.shape
     if (h, w) != (infer_size, infer_size):
         canvas = np.zeros(shape=(infer_size, infer_size, d), dtype=np.uint8)
         canvas[:h, :w, :] = image
