@@ -32,7 +32,7 @@ def stitch_tiles(
     logger.info("Stitching tiles")
     for tile_path in list(tile_dir.iterdir()):
         tile_properties = parse_properties(tile_path.stem)
-        pred, h, w = infer(tile_path, model, infer_size, infer_scale)
+        pred, (h, w) = infer(tile_path, model, infer_size, infer_scale)
         if (h, w) == (infer_size, infer_size):
             weights = default_gaussian_weights
         else:
