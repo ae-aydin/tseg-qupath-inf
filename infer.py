@@ -85,7 +85,7 @@ def main():
             "message": "Processing completed successfully.",
             "runtime_sec": round(run_time, 4),
             "n_polygons": n_polygons,
-            "log_file": args.log_file,
+            "log_file": str(args.log_file),
         }
 
         print(json.dumps(success_message))
@@ -98,7 +98,7 @@ def main():
         error_message = {
             "status": "error",
             "message": str(e),
-            "log_file": args.log_file,
+            "log_file": str(args.log_file),
         }
 
         print(json.dumps(error_message))
