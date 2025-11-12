@@ -7,6 +7,7 @@ if [ $# -eq 0 ]; then
 fi
 
 LOG_FILE="$1"
+> "$LOG_FILE"
 
 log_output() {
   echo "$@" | tee -a "$LOG_FILE"
@@ -15,18 +16,14 @@ log_output() {
 log_info()    { log_output "[INFO] $1"; }
 log_success() { log_output "[SUCCESS] $1"; }
 log_warn()    { log_output "[WARN] $1"; }
-log_error()   { log_output "[ERROR] $1"; exit 1; }
+log_error()   { log_output "[ERROR] $1" >&2; exit 1; }
 
-exec 1> >(tee -a "$LOG_FILE")
-exec 2> >(tee -a "$LOG_FILE" >&2)
-
-trap 'log_error "Failed at line $LINENO: ${BASH_COMMAND:-unknown}"' ERR
+trap 'echo "[ERROR] Failed at line $LINENO: ${BASH_COMMAND:-unknown}" | tee -a "$LOG_FILE" >&2' ERR
 
 # dirs
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_DIR"
-
 
 log_info "Inference setup started."
 
