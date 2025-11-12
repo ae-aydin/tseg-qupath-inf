@@ -57,7 +57,11 @@ def infer(
 
     scale_factor = 1 / infer_scale
     image = cv2.resize(
-        image, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_AREA
+        image,
+        dsize=None,
+        fx=scale_factor,
+        fy=scale_factor,
+        interpolation=cv2.INTER_AREA,
     )
 
     h, w, d = image.shape[:2]
