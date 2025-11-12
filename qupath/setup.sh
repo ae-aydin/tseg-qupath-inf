@@ -1,10 +1,24 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-log_info()    { echo "[INFO] $1"; }
-log_success() { echo "[SUCCESS] $1"; }
-log_warn()    { echo "[WARN] $1"; }
-log_error()   { echo "[ERROR] $1"; exit 1; }
+if [ $# -eq 0 ]; then
+  echo "Usage: $0 <log_file_path>" >&2
+  exit 1
+fi
+
+LOG_FILE="$1"
+
+log_output() {
+  echo "$@" | tee -a "$LOG_FILE"
+}
+
+log_info()    { log_output "[INFO] $1"; }
+log_success() { log_output "[SUCCESS] $1"; }
+log_warn()    { log_output "[WARN] $1"; }
+log_error()   { log_output "[ERROR] $1"; exit 1; }
+
+exec 1> >(tee -a "$LOG_FILE")
+exec 2> >(tee -a "$LOG_FILE" >&2)
 
 trap 'log_error "Failed at line $LINENO: ${BASH_COMMAND:-unknown}"' ERR
 
@@ -13,9 +27,9 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_DIR"
 
-echo "=== QUPATH INFERENCE SETUP ===\n"
 
-# prereqs
+log_info "Inference setup started."
+
 command -v curl >/dev/null 2>&1 || log_error "curl not found."
 
 log_info "Checking for 'uv'..."
