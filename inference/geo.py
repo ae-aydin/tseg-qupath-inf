@@ -40,23 +40,23 @@ def stitch_tiles(
             weights = gaussian_weight_map(h, w)
         x = int((tile_properties["x"] - canvas_offset_x) / total_scale)
         y = int((tile_properties["y"] - canvas_offset_y) / total_scale)
-        canvas[y : y + infer_size, x : x + infer_size] += pred * weights
-        canvas_weight[y : y + infer_size, x : x + infer_size] += weights
+        canvas[y : y + h, x : x + w] += pred * weights
+        canvas_weight[y : y + h, x : x + w] += weights
 
-    logger.debug("Averaging the stitched logits")
+    logger.debug("Averaging the stitched logits...")
     min_logit = np.min(canvas[canvas_weight > 0]) if np.any(canvas_weight > 0) else 0
     out_canvas = np.full_like(canvas, fill_value=min_logit, dtype=np.float32)
     r_canvas = np.divide(canvas, canvas_weight, out=out_canvas, where=canvas_weight > 0)
     r_canvas = sigmoid(r_canvas)
 
-    logger.debug("Post processing the ROI")
+    logger.debug("Post processing the ROI...")
     r_canvas = post_process(r_canvas, confidence)
 
     canvas_full_size = (
         int(r_canvas.shape[1] * total_scale),
         int(r_canvas.shape[0] * total_scale),
     )
-    logger.debug(f"Resizing the ROI to full size -> {canvas_full_size}")
+    logger.debug(f"Resizing the ROI to full size -> {canvas_full_size}...")
     r_canvas = cv2.resize(r_canvas, canvas_full_size, interpolation=cv2.INTER_NEAREST)
 
     return r_canvas.astype(np.uint8)
@@ -78,7 +78,7 @@ def extract_and_save_polygons(
     properties: dict,
     min_area: int = 32,
     filename: str = "polygons.geojson",
-) -> None:
+) -> int:
     contours, hierarchy = cv2.findContours(
         canvas, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
     )
@@ -86,11 +86,11 @@ def extract_and_save_polygons(
     features = []
 
     if hierarchy is None:
-        logger.warning("No contours were found in the provided canvas")
+        logger.warning("No contours were found in the provided canvas.")
         return
 
     hierarchy = hierarchy[0]
-    logger.info("Processing polygons")
+    logger.info("Processing polygons...")
     for i, contour in enumerate(contours):
         if cv2.contourArea(contour) < min_area:
             continue
@@ -123,7 +123,9 @@ def extract_and_save_polygons(
             geometry = geojson.Polygon([external] + holes)
             features.append(geojson.Feature(geometry=geometry, properties=properties))
 
-    logger.info(f"Extracted {len(features)} polygon(s)")
+    n_polygons = len(features)
+    logger.info(f"Extracted {n_polygons} polygon(s).")
     feature_collection = geojson.FeatureCollection(features)
     output_path = output_dir / filename
     output_path.write_text(geojson.dumps(feature_collection))
+    return n_polygons

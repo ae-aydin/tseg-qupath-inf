@@ -21,14 +21,14 @@ def infer_torch(image: NDArray[np.uint8], model) -> NDArray[np.float32]:
 
 def load_onnx_model(model_path: Path) -> ort.InferenceSession:
     device = ort.get_device()
-    logger.info(f"Using onnx device - {device}")
+    logger.info(f"Using onnx device - {device}.")
     providers = (
         ["CUDAExecutionProvider", "CPUExecutionProvider"]
         if device == "GPU"
         else ["CPUExecutionProvider"]
     )
     model = ort.InferenceSession(str(model_path), providers=providers)
-    logger.info(f"ONNX model loaded: {model_path.name}")
+    logger.info(f"ONNX model loaded: {model_path.name}.")
     return model
 
 

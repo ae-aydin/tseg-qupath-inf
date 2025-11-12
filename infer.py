@@ -1,4 +1,6 @@
 import argparse
+import json
+import sys
 import time
 from pathlib import Path
 
@@ -21,6 +23,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--downsample-rate", type=float, required=True)
     parser.add_argument("--tile-size", type=int, required=True)
     parser.add_argument("--confidence", type=float, required=True)
+    parser.add_argument("--log-file", type=Path, required=True)
     return parser.parse_args()
 
 
@@ -51,20 +54,55 @@ def run_inference(args: argparse.Namespace, infer_size: int) -> NDArray[np.uint8
 
 
 def main():
-    start_time = time.perf_counter()
     args = parse_args()
-    logger = setup_logger()
-    config = load_config()
+    logger = None
 
-    infer_size = config["model"]["infer_size"]
-    gj_props = config["geojson_properties"]
+    try:
+        logger = setup_logger(args.log, debug=True)
+        logger.info(f"Arguments: {vars(args)}")
 
-    logger.info("Inference started")
+        start_time = time.perf_counter()
 
-    canvas = run_inference(args, infer_size)
-    extract_and_save_polygons(canvas, args.output_dir, args.roi_x, args.roi_y, gj_props)
-    run_time = time.perf_counter() - start_time
-    logger.info(f"Finished in {run_time:.4f} secs")
+        logger.info("Inference process started.")
+        config = load_config()
+
+        infer_size = config["model"]["infer_size"]
+        gj_props = config["geojson_properties"]
+
+        logger.info("Running inference...")
+        canvas = run_inference(args, infer_size)
+
+        logger.info("Extracting and saving polygons...")
+        n_polygons = extract_and_save_polygons(
+            canvas, args.output_dir, args.roi_x, args.roi_y, gj_props
+        )
+
+        run_time = time.perf_counter() - start_time
+        logger.info(f"Finished successfully in {run_time:.4f} secs")
+
+        success_message = {
+            "status": "success",
+            "message": "Processing completed successfully.",
+            "runtime_sec": round(run_time, 4),
+            "n_polygons": n_polygons,
+            "log_file": args.log_file,
+        }
+
+        print(json.dumps(success_message))
+        sys.exit(0)
+
+    except Exception as e:
+        if logger:
+            logger.exception("A fatal error was caught by the main handler")
+
+        error_message = {
+            "status": "error",
+            "message": str(e),
+            "log_file": args.log_file,
+        }
+
+        print(json.dumps(error_message))
+        sys.exit(1)
 
 
 if __name__ == "__main__":

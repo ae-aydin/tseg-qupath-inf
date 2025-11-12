@@ -6,18 +6,26 @@ import time
 from functools import wraps
 from pathlib import Path
 
-logger = logging.getLogger("inference")
 
-
-def setup_logger(name: str = "inference", debug: bool = False) -> logging.Logger:
+def setup_logger(
+    log_file: str | Path, name: str = "inference", debug: bool = False
+) -> logging.Logger:
     logger = logging.getLogger(name)
     level = logging.DEBUG if debug else logging.INFO
     logger.setLevel(level)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter("[%(levelname)s] %(message)s")
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+
+    if logger.hasHandlers():
+        logger.handlers.clear()
+
+    file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
+
+    formatter = logging.Formatter(
+        "%(asctime)s [%(levelname)s] [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
     return logger
 
 
@@ -29,6 +37,8 @@ def load_config(config_file: str = "config.json") -> dict:
 
 
 def timer(func):
+    logger = logging.getLogger(func.__module__)
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.perf_counter()
@@ -38,9 +48,7 @@ def timer(func):
         finally:
             end_time = time.perf_counter()
             run_time = end_time - start_time
-            logger.debug(f"Finished '{func.__name__}' in {run_time:.4f} secs")
-            for handler in logger.handlers:
-                handler.flush()
+            logger.debug(f"Finished '{func.__name__}' in {run_time:.4f} secs.")
 
     return wrapper
 
