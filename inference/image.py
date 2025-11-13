@@ -7,11 +7,30 @@ from numpy.typing import NDArray
 from .utils import timer
 
 
-def read_image(image_path: Path, to_rgb: bool = True) -> NDArray[np.uint8]:
+def read_image(image_path: Path, infer_scale: int, infer_size: int, to_rgb: bool = True) -> tuple[NDArray[np.uint8], tuple[int]]:
     image = cv2.imread(str(image_path))
     if to_rgb:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    return image
+    return resize(image, infer_scale, infer_size)
+
+
+def resize(image: NDArray[np.uint8], infer_scale: int, infer_size: int) -> tuple[NDArray[np.uint8], tuple[int]]:
+    scale_factor = 1 / infer_scale
+    image = cv2.resize(
+        image,
+        dsize=None,
+        fx=scale_factor,
+        fy=scale_factor,
+        interpolation=cv2.INTER_AREA,
+    )
+
+    h, w, d = image.shape
+    if (h, w) != (infer_size, infer_size):
+        canvas = np.zeros(shape=(infer_size, infer_size, d), dtype=np.uint8)
+        canvas[:h, :w, :] = image
+        image = canvas
+        
+    return image, (h, w)
 
 
 def scale(image: NDArray[np.float32], normalize: bool = True) -> NDArray[np.float32]:
@@ -21,15 +40,6 @@ def scale(image: NDArray[np.float32], normalize: bool = True) -> NDArray[np.floa
         std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
         image = (image - mean) / std
     return image
-
-
-def gaussian_weight_map(size: int, sigma_ratio: float = 0.25) -> NDArray[np.float32]:
-    tmp = np.linspace(-1, 1, size)
-    x, y = np.meshgrid(tmp, tmp)
-    d = np.sqrt(x * x + y * y)
-    sigma = 2 * sigma_ratio**2
-    g_map = np.exp(-((d**2) / sigma))
-    return g_map.astype(np.float32)
 
 
 def gaussian_weight_map(

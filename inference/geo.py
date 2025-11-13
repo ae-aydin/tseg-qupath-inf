@@ -103,7 +103,7 @@ def extract_and_save_polygons(
 
     if hierarchy is None:
         logger.warning("No contours were found in the provided canvas.")
-        return
+        return 0
 
     hierarchy = hierarchy[0]
     logger.info("Processing polygons...")
