@@ -7,14 +7,18 @@ from numpy.typing import NDArray
 from .utils import timer
 
 
-def read_image(image_path: Path, infer_scale: int, infer_size: int, to_rgb: bool = True) -> tuple[NDArray[np.uint8], tuple[int]]:
+def read_image(
+    image_path: Path, infer_scale: int, infer_size: int, to_rgb: bool = True
+) -> tuple[NDArray[np.uint8], tuple[int]]:
     image = cv2.imread(str(image_path))
     if to_rgb:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     return resize(image, infer_scale, infer_size)
 
 
-def resize(image: NDArray[np.uint8], infer_scale: int, infer_size: int) -> tuple[NDArray[np.uint8], tuple[int]]:
+def resize(
+    image: NDArray[np.uint8], infer_scale: int, infer_size: int
+) -> tuple[NDArray[np.uint8], tuple[int]]:
     scale_factor = 1 / infer_scale
     image = cv2.resize(
         image,
@@ -29,7 +33,7 @@ def resize(image: NDArray[np.uint8], infer_scale: int, infer_size: int) -> tuple
         canvas = np.zeros(shape=(infer_size, infer_size, d), dtype=np.uint8)
         canvas[:h, :w, :] = image
         image = canvas
-        
+
     return image, (h, w)
 
 

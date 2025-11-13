@@ -54,7 +54,7 @@ def infer(
     image_path: Path, model: ort.InferenceSession, infer_size: int, infer_scale: int
 ) -> NDArray[np.float32]:
     image, original_shape = read_image(image_path, infer_scale, infer_size)
-    
+
     if isinstance(model, ort.InferenceSession):
         return infer_onnx(image, model), original_shape
     else:
