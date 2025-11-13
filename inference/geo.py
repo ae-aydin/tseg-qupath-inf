@@ -29,19 +29,35 @@ def stitch_tiles(
     model = load(model_path)
     default_gaussian_weights = gaussian_weight_map(infer_size, infer_size)
 
-    logger.info("Stitching tiles")
+    logger.info("Stitching tiles...")
     for tile_path in list(tile_dir.iterdir()):
         tile_properties = parse_properties(tile_path.stem)
         pred, (h, w) = infer(tile_path, model, infer_size, infer_scale)
+
+        # partial tile handling
         if (h, w) == (infer_size, infer_size):
             weights = default_gaussian_weights
         else:
             pred = pred[:h, :w]
             weights = gaussian_weight_map(h, w)
+
+        # top left corner of the tile
         x = int((tile_properties["x"] - canvas_offset_x) / total_scale)
         y = int((tile_properties["y"] - canvas_offset_y) / total_scale)
-        canvas[y : y + h, x : x + w] += pred * weights
-        canvas_weight[y : y + h, x : x + w] += weights
+
+        canvas_h, canvas_w = canvas.shape
+        h = min(h, canvas_h - y)
+        w = min(w, canvas_w - x)
+        if h <= 0 or w <= 0:
+            logger.warning(f"Skipping tile {tile_path.stem} (outside canvas bounds).")
+            continue
+
+        # boundary math
+        dest_slice = (slice(y, y + h), slice(x, x + w))
+        src_slice = (slice(0, h), slice(0, w))
+
+        canvas[dest_slice] += pred[src_slice] * weights[src_slice]
+        canvas_weight[dest_slice] += weights[src_slice]
 
     logger.debug("Averaging the stitched logits...")
     min_logit = np.min(canvas[canvas_weight > 0]) if np.any(canvas_weight > 0) else 0
@@ -56,7 +72,7 @@ def stitch_tiles(
         int(r_canvas.shape[1] * total_scale),
         int(r_canvas.shape[0] * total_scale),
     )
-    logger.debug(f"Resizing the ROI to full size -> {canvas_full_size}...")
+    logger.debug(f"Resizing the ROI to full size -> {canvas_full_size}.")
     r_canvas = cv2.resize(r_canvas, canvas_full_size, interpolation=cv2.INTER_NEAREST)
 
     return r_canvas.astype(np.uint8)

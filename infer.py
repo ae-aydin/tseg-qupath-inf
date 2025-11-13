@@ -78,7 +78,7 @@ def main():
         )
 
         run_time = time.perf_counter() - start_time
-        logger.info(f"Finished successfully in {run_time:.4f} secs")
+        logger.info(f"Finished successfully in {run_time:.4f} secs.")
 
         success_message = {
             "status": "success",
@@ -93,7 +93,7 @@ def main():
 
     except Exception as e:
         if logger:
-            logger.exception("A fatal error was caught by the main handler")
+            logger.exception("A fatal error was caught by the main handler!")
 
         error_message = {
             "status": "error",

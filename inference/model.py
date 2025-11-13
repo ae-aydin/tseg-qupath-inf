@@ -47,7 +47,7 @@ def load(model_path: Path) -> ort.InferenceSession:
     if ext == ".onnx":
         return load_onnx_model(model_path)
     else:
-        raise ValueError("Unsupported model extension")
+        raise ValueError("Unsupported model extension.")
 
 
 def infer(
@@ -73,4 +73,4 @@ def infer(
     if isinstance(model, ort.InferenceSession):
         return infer_onnx(image, model), (h, w)
     else:
-        raise TypeError("Unsupported model type")
+        raise TypeError("Unsupported model type.")
