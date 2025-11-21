@@ -22,7 +22,7 @@ def stitch_tiles(
     canvas_offset_x: int,
     canvas_offset_y: int,
     canvas_weight: np.ndarray,
-    infer_scale: int,
+    infer_scale: float,
     total_scale: float,
     confidence: float,
 ) -> NDArray[np.uint8]:

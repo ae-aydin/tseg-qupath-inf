@@ -8,7 +8,7 @@ from .utils import timer
 
 
 def read_image(
-    image_path: Path, infer_scale: int, infer_size: int, to_rgb: bool = True
+    image_path: Path, infer_scale: float, infer_size: int, to_rgb: bool = True
 ) -> tuple[NDArray[np.uint8], tuple[int]]:
     image = cv2.imread(str(image_path))
     if to_rgb:
@@ -17,7 +17,7 @@ def read_image(
 
 
 def resize(
-    image: NDArray[np.uint8], infer_scale: int, infer_size: int
+    image: NDArray[np.uint8], infer_scale: float, infer_size: int
 ) -> tuple[NDArray[np.uint8], tuple[int]]:
     scale_factor = 1 / infer_scale
     image = cv2.resize(
@@ -29,6 +29,13 @@ def resize(
     )
 
     h, w, d = image.shape
+    
+    if h > infer_size or w > infer_size:
+        h_crop = min(h, infer_size)
+        w_crop = min(w, infer_size)
+        image = image[:h_crop, :w_crop, :]
+        h, w = h_crop, w_crop
+        
     if (h, w) != (infer_size, infer_size):
         canvas = np.zeros(shape=(infer_size, infer_size, d), dtype=np.uint8)
         canvas[:h, :w, :] = image

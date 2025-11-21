@@ -51,7 +51,7 @@ def load(model_path: Path) -> ort.InferenceSession:
 
 
 def infer(
-    image_path: Path, model: ort.InferenceSession, infer_size: int, infer_scale: int
+    image_path: Path, model: ort.InferenceSession, infer_size: int, infer_scale: float
 ) -> NDArray[np.float32]:
     image, original_shape = read_image(image_path, infer_scale, infer_size)
 

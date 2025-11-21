@@ -29,7 +29,7 @@ def parse_args() -> argparse.Namespace:
 
 def run_inference(args: argparse.Namespace, infer_size: int) -> NDArray[np.uint8]:
     # ratio between input size and model input/output size
-    infer_scale = args.tile_size // infer_size
+    infer_scale = args.tile_size / infer_size
     # total scaling constant
     total_scale = args.downsample_rate * infer_scale
 
